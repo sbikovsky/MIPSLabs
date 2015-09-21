@@ -2,72 +2,68 @@
 
 
 module testbench;
+     
+     //Inputs
+     reg mips_clk;
+     reg mips_rst;
+                  
+     //Outputs
+     wire        mem_instr_read;
+     wire [31:0] mem_instr_addr_bus, mem_instr_read_bus;
+                                     
+     wire        mem_data_write, mem_data_read;
+     wire [31:0] mem_data_addr_bus, mem_data_read_bus, mem_data_write_bus;
 
-   // Inputs
-   reg        clk;
-   reg        rst;
-   reg [31:0] ext_data_in;
+     //Instantiate the Unit Under Test (UUT)
+     mips_system uut (
+          .clk(mips_clk), 
+          .rst(mips_rst), 
+		    
+          .mem_instr_read(mem_instr_read),
+          .mem_instr_addr_bus(mem_instr_addr_bus), 
+          .mem_instr_read_bus(mem_instr_read_bus),
+                                     
+          .mem_data_write(mem_data_write),
+          .mem_data_read(mem_data_read),                     
+          .mem_data_addr_bus(mem_data_addr_bus),
+          .mem_data_read_bus(mem_data_read_bus),
+          .mem_data_write_bus(mem_data_write_bus));
 
-   // Outputs
-   wire        ext_write_en;
-   wire        ext_read_en;
-   wire [31:0] ext_addr;
-   wire [31:0] ext_write_data;
+     initial begin
+          mips_rst = 1;
 
-   // Instantiate the Unit Under Test (UUT)
-   mips_system uut (
-		    .clk(clk), 
-		    .rst(rst), 
-		    .ext_write_en(ext_write_en), 
-		    .ext_read_en(ext_read_en), 
-		    .ext_addr(ext_addr), 
-		    .ext_write_data(ext_write_data), 
-		    .ext_data_in(ext_data_in)
-	            );
-
-   initial begin
-      rst = 1;
-      ext_data_in = 0;
+          // Wait 100 ns for global reset to finish
+          #100;
+          mips_rst = 0;
       
-      // Wait 100 ns for global reset to finish
-      #100;
-      rst = 0;
-      
-   end // initial begin
+     end // initial begin
 
-
-   initial begin
-      clk = 0;
-      forever
-        #10 clk = !clk;      
-   end
-
-
+     initial begin
+          mips_clk = 0;
+          forever
+               #10 mips_clk = !mips_clk;      
+     end
+     
 	integer i;
-   initial begin
+     
+     initial begin
+          for (i = 0; i < 1000; i=i+1)
+               @(posedge mips_clk);
 
-      for (i = 0; i < 1000; i=i+1)
-        @(posedge clk);
+          $stop();      
+     end
 
+     initial begin
+          $display("Trace register $t0");
+          
+          @(negedge mips_rst);
 
-      $stop();      
-   end
+          forever begin
+               @(posedge mips_clk);
 
-   initial
-   begin
-        $display("Trace register $t0");
-        @(negedge rst);
-
-        forever
-         begin
-           @(posedge clk);
-           $display("$t0 (REG8) = %x",uut.pipeline_inst.idecode_inst.regfile_inst.rf[8]);           
-         end
-
-
-
-   end
-   
+               $display("%d ns: $t0 (REG8) = %x", $time, uut.pipeline_inst.idecode_inst.regfile_inst.rf[8]);           
+          end
+     end
    
 endmodule
 

@@ -1,0 +1,19 @@
+
+test.axf:     file format elf32-tradbigmips
+
+
+Disassembly of section .text:
+
+00000000 <entry>:
+   0:	8c080200 	lw	t0,512(zero)
+   4:	8c090200 	lw	t1,512(zero)
+   8:	00000000 	nop
+   c:	01094020 	add	t0,t0,t1
+  10:	2108000b 	addi	t0,t0,11
+  14:	01094022 	sub	t0,t0,t1
+  18:	35080010 	ori	t0,t0,0x10
+  1c:	01094026 	xor	t0,t0,t1
+  20:	0109402a 	slt	t0,t0,t1
+  24:	01094020 	add	t0,t0,t1
+  28:	1109fff5 	beq	t0,t1,0 <entry>
+  2c:	00000000 	nop
