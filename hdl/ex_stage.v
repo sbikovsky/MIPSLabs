@@ -8,6 +8,8 @@ module ex_stage( input             clk,
                  input             ex_alu_src_b,
                  input             ex_dst_reg_sel,
                  input [1:0]       ex_alu_op,
+                 
+                 input pstop_i,
                 
                  input [31:0]      A,
                  input [31:0]      B,

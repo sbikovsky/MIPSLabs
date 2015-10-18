@@ -12,6 +12,8 @@ module mem_stage  (
                    input             wb_reg_write,
                    input             wb_mem_to_reg,
                    
+                   input pstop_i,
+                   
                    output reg [4:0]  MEM_WB_dst_reg,
                    output reg        MEM_WB_reg_write,
                    output reg        MEM_WB_mem_to_reg,

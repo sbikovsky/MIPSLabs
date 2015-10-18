@@ -8,6 +8,8 @@ module if_stage( input             clk, rst,
                  input             if_id_write_en,
                  input             pc_write,
                  input      [1:0]  pc_source,
+                 
+                 input pstop_i,
                 
                  output            i_read_en,
                  output     [31:0] i_addr,
@@ -21,6 +23,11 @@ module if_stage( input             clk, rst,
 
      reg  [31:0] pc_reg, pc_next; // Program counter (PC)
      wire [31:0] next_i_addr;
+     
+     localparam     LW  = 6'b100011, 
+                    SW  = 6'b101011;
+     
+     wire mem_op = (IF_ID_instruction[31:26] == LW) || (IF_ID_instruction[31:26] == SW);
    
      //logic
      assign next_i_addr = pc_reg + 4;
@@ -41,7 +48,7 @@ module if_stage( input             clk, rst,
           if (rst)
                pc_reg <= 0;        
           else begin
-               if (pc_write)
+               if (pc_write && !(pstop_i || mem_op))
                     pc_reg <= pc_next;             
           end        
      end
@@ -53,9 +60,9 @@ module if_stage( input             clk, rst,
                IF_ID_instruction <= 0;           
           end
           else begin
-               if ( if_id_write_en ) begin
-                    IF_ID_next_i_addr <= pc_reg + 4;
-                    IF_ID_instruction <= i_instr_in;
+               if ( if_id_write_en) begin
+                    IF_ID_next_i_addr <= next_i_addr;
+                    IF_ID_instruction <= !(pstop_i || mem_op)? i_instr_in: 0;
                end
           end
      end

@@ -14,6 +14,7 @@ module id_stage( input             clk, rst,
                  input [31:0]      mem_fwd_val, wb_fwd_val,  // forwarded data values
 
                  input             hazard,
+                 input pstop_i,
                 
                  //outputs
                  output [4:0] id_rs,
@@ -135,33 +136,40 @@ module id_stage( input             clk, rst,
                ID_EX_ex_alu_op <= 0;
           end
           else begin
-               ID_EX_A <= A;
-               ID_EX_B <= B;
-               ID_EX_rt <= id_rt;
-               ID_EX_rs <= id_rs;
-               ID_EX_rd <= instruction[15:11];
-               ID_EX_opcode <= id_opcode;
-               ID_EX_sign_extend_offset <= sign_extend_offset;
                
-               if (is_nop || hazard) begin
-                    ID_EX_wb_reg_write   <= 0;
-                    ID_EX_wb_mem_to_reg  <= 0;
-                    ID_EX_mem_read       <= 0;
-                    ID_EX_mem_write      <= 0;
-                    ID_EX_ex_imm_command <= 0;
-                    ID_EX_ex_alu_src_b   <= 0;
-                    ID_EX_ex_dst_reg_sel <= 0;
-                    ID_EX_ex_alu_op      <= 0;                        
-                end
-                else begin
-                    ID_EX_wb_reg_write <= wb_reg_write;
-                    ID_EX_wb_mem_to_reg <= wb_mem_to_reg;
-                    ID_EX_mem_read <= mem_read;
-                    ID_EX_mem_write <= mem_write;
-                    ID_EX_ex_imm_command <= ex_imm_command;
-                    ID_EX_ex_alu_src_b <= ex_alu_src_b;
-                    ID_EX_ex_dst_reg_sel <= ex_dst_reg_sel;
-                    ID_EX_ex_alu_op <= ex_alu_op;                        
+               if(!pstop_i) begin
+                   ID_EX_A <= A;
+                   ID_EX_B <= B;
+                   ID_EX_rt <= id_rt;
+                   ID_EX_rs <= id_rs;
+                   ID_EX_rd <= instruction[15:11];
+                   
+                   ID_EX_opcode <= id_opcode;
+                   
+                   ID_EX_sign_extend_offset <= sign_extend_offset;
+               end                
+               
+               if(!pstop_i) begin
+                   if (is_nop || hazard) begin
+                        ID_EX_wb_reg_write   <= 0;
+                        ID_EX_wb_mem_to_reg  <= 0;
+                        ID_EX_mem_read       <= 0;
+                        ID_EX_mem_write      <= 0;
+                        ID_EX_ex_imm_command <= 0;
+                        ID_EX_ex_alu_src_b   <= 0;
+                        ID_EX_ex_dst_reg_sel <= 0;
+                        ID_EX_ex_alu_op      <= 0;                        
+                    end
+                    else begin
+                        ID_EX_wb_reg_write <= wb_reg_write;
+                        ID_EX_wb_mem_to_reg <= wb_mem_to_reg;
+                        ID_EX_mem_read <= mem_read;
+                        ID_EX_mem_write <= mem_write;
+                        ID_EX_ex_imm_command <= ex_imm_command;
+                        ID_EX_ex_alu_src_b <= ex_alu_src_b;
+                        ID_EX_ex_dst_reg_sel <= ex_dst_reg_sel;
+                        ID_EX_ex_alu_op <= ex_alu_op;   
+                    end
                 end
           end
      end

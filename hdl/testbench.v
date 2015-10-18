@@ -8,26 +8,15 @@ module testbench;
      reg mips_rst;
                   
      //Outputs
-     wire        mem_instr_read;
-     wire [31:0] mem_instr_addr_bus, mem_instr_read_bus;
-                                     
-     wire        mem_data_write, mem_data_read;
-     wire [31:0] mem_data_addr_bus, mem_data_read_bus, mem_data_write_bus;
+     wire [7:0] led;
 
      //Instantiate the Unit Under Test (UUT)
      mips_system uut (
           .clk(mips_clk), 
           .rst(mips_rst), 
 		    
-          .mem_instr_read(mem_instr_read),
-          .mem_instr_addr_bus(mem_instr_addr_bus), 
-          .mem_instr_read_bus(mem_instr_read_bus),
-                                     
-          .mem_data_write(mem_data_write),
-          .mem_data_read(mem_data_read),                     
-          .mem_data_addr_bus(mem_data_addr_bus),
-          .mem_data_read_bus(mem_data_read_bus),
-          .mem_data_write_bus(mem_data_write_bus));
+          .led(led)
+     );
 
      initial begin
           mips_rst = 1;

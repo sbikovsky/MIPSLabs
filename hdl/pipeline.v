@@ -11,6 +11,8 @@ module pipeline ( input wire         clk,
                   output [31:0]      i_addr,
 
                   input [31:0]       i_instr_in,
+                  
+                  input wb_done_i,
 
                   output wire        d_read_en,
                   output wire        d_write_en,
@@ -79,6 +81,9 @@ module pipeline ( input wire         clk,
      if_stage ifetch_inst(
           .clk               ( clk ),
           .rst               ( rst ),
+          
+          .pstop_i(pstop),
+          
           .if_id_write_en    ( if_id_write_en ),
           .pc_write          ( pc_write ),
           .pc_source         ( pc_source ),
@@ -91,9 +96,12 @@ module pipeline ( input wire         clk,
           .IF_ID_next_i_addr ( next_i_addr ));
 
      hazard_unit hazard_inst(
-//        .clk ( clk ),                                isn't needed for now
-//        .rst ( rst ),                                isn't needed for now
+          .clk ( clk ),               //                 isn't needed for now
+          .rst ( rst ),               //                 isn't needed for now
           .ex_dst_reg ( ex_dst_reg ),
+          
+          .pstop_o(pstop),
+          
           .mem_dst_reg ( EX_MEM_dst_reg ),
           .id_rs ( id_rs ),
           .id_rt ( id_rt ),
@@ -105,7 +113,8 @@ module pipeline ( input wire         clk,
           .mem_reg_write ( EX_MEM_wb_reg_write ),
           .pc_write ( pc_write ),
           .if_id_write_en ( if_id_write_en ),
-          .hazard_detected ( hazard_detected ));
+          .wb_done_i(wb_done_i),
+          .hazard_detected_o ( hazard_detected ));
 
      forwarding_unit forwarding_inst(
           .ex_mem_reg_write (EX_MEM_wb_reg_write),
@@ -129,6 +138,8 @@ module pipeline ( input wire         clk,
           .wreg_data ( wreg_data ),                    // data to write into regfile
           .instruction ( i_fetched ),
           .next_i_addr ( next_i_addr ),                // instruction fetched, next instruction address
+
+          .pstop_i(pstop),
 
           .rs_fwd_sel ( if_rs_forward_control ),       // forwarding control signals
           .rt_fwd_sel ( id_rt_forward_control ),       // forwarding control signals
@@ -167,6 +178,9 @@ module pipeline ( input wire         clk,
           .wb_reg_write ( ID_EX_wb_reg_write ),
           .wb_mem_to_reg ( ID_EX_wb_mem_to_reg ),
           .mem_read ( ID_EX_mem_read ),
+          
+          .pstop_i(pstop),
+          
           .mem_write ( ID_EX_mem_write ),
           .ex_imm_command ( ID_EX_ex_imm_command ),
           .ex_alu_src_b ( ID_EX_ex_alu_src_b ),
@@ -200,6 +214,8 @@ module pipeline ( input wire         clk,
           .mem_write ( EX_MEM_mem_write ),
           .alu_result ( EX_MEM_alu_result ),
           .B ( EX_MEM_B_value ),
+          .pstop_i(pstop),
+          
           .dst_reg ( EX_MEM_dst_reg ),
           .wb_reg_write ( EX_MEM_wb_reg_write ),
           .wb_mem_to_reg ( EX_MEM_wb_mem_to_reg ),
