@@ -1,4 +1,4 @@
-module gpio_wb(
+module gpio_wb #(parameter BASE_ADDR = 32'h00000400) (
     
     // system signals
     input clk_i, 
@@ -17,8 +17,6 @@ module gpio_wb(
     // func signals
     output reg [7:0] gpio_o
 );
-
-localparam BASE_ADDR = 32'h00000400;
 
 localparam IDLE = 0;
 localparam ACK  = 1;

@@ -8,6 +8,12 @@ module mips_system (
                     
     output [7:0]  led
 );
+     localparam [31:0] instr_addr_high = 32'h00000fff,
+                       instr_addr_low  = 32'h00000000,
+                       data_addr_high  = 32'h0000ffff,
+                       data_addr_low   = 32'h00001000,
+                       
+                       gpio_base_addr  = 32'h00010000;
 
      wire        i_read_en;   
      wire [31:0] i_addr;
@@ -49,7 +55,7 @@ module mips_system (
      wire ram_ack_o;
      wire [2:0] ram_cti_i = 0; // classic cycle
      
-     gpio_wb gpio_inst(
+     gpio_wb #(gpio_base_addr) gpio_inst(
     
         // system signals
         .clk_i(clk), 
@@ -67,21 +73,22 @@ module mips_system (
         
         // func signals
         .gpio_o(led)
-    );
-     
-     ram_wb ram_inst( 
-        .dat_i(ram_dat_i), 
-        .dat_o(ram_dat_o), 
-        .adr_i(ram_addr_i), 
-        .we_i(ram_we_i), 
-        .sel_i(ram_sel_i), 
-        .cyc_i(ram_cyc_i), 
-        .stb_i(ram_stb_i), 
-        .ack_o(ram_ack_o), 
-        .cti_i(ram_cti_i), 
-        .clk_i(clk), 
-        .rst_i(rst)
      );
+     
+     data_ram_wb #( 
+        .addr_high(data_addr_high),
+        .addr_low(data_addr_low)) ram_inst( 
+             .dat_i(ram_dat_i), 
+             .dat_o(ram_dat_o), 
+             .adr_i(ram_addr_i), 
+             .we_i(ram_we_i), 
+             .sel_i(ram_sel_i), 
+             .cyc_i(ram_cyc_i), 
+             .stb_i(ram_stb_i), 
+             .ack_o(ram_ack_o), 
+             .cti_i(ram_cti_i), 
+             .clk_i(clk), 
+             .rst_i(rst));
      
      intercon wb_inst (
         // wishbone master port(s)
@@ -118,7 +125,6 @@ module mips_system (
         .reset(rst)
      );
 
-   
      pipeline pipeline_inst (
           .clk(clk),
           .rst(rst),
@@ -132,28 +138,29 @@ module mips_system (
           .d_write_data(d_write_data),
           .d_data_in(d_read_data));
 
-     dp_memory memory_inst (
-          .clk(clk),
-          .rst(rst),
-          .i_read_en(i_read_en),
-          .i_addr(i_addr),
-          .i_instr_out(i_instr),
-          .d_read_en(d_read_en),
-          .d_write_en(d_write_en),
-          .d_addr(d_addr),
-          .d_write_data(d_write_data),
-          .d_data_out(d_read_data),
-          
-          .wb_done_o(wb_done),
-          
-          .wbm_dat_i(mips_wbm_dat_i),
-          .wbm_ack_i(mips_wbm_ack_i),
-          .wbm_dat_o(mips_wbm_dat_o),
-          .wbm_we_o(mips_wbm_we_o),
-          .wbm_sel_o(mips_wbm_sel_o),
-          .wbm_adr_o(mips_wbm_adr_o),
-          .wbm_cyc_o(mips_wbm_cyc_o),
-          .wbm_stb_o(mips_wbm_stb_o)
-      );
+     bus_control #( 
+          .addr_high(instr_addr_high),
+          .addr_low(instr_addr_low)) memory_inst (
+               .clk(clk),
+               .rst(rst),
+               .i_read_en(i_read_en),
+               .i_addr(i_addr),
+               .i_instr_out(i_instr),
+               .d_read_en(d_read_en),
+               .d_write_en(d_write_en),
+               .d_addr(d_addr),
+               .d_write_data(d_write_data),
+               .d_data_out(d_read_data),
+               
+               .wb_done_o(wb_done),
+               
+               .wbm_dat_i(mips_wbm_dat_i),
+               .wbm_ack_i(mips_wbm_ack_i),
+               .wbm_dat_o(mips_wbm_dat_o),
+               .wbm_we_o(mips_wbm_we_o),
+               .wbm_sel_o(mips_wbm_sel_o),
+               .wbm_adr_o(mips_wbm_adr_o),
+               .wbm_cyc_o(mips_wbm_cyc_o),
+               .wbm_stb_o(mips_wbm_stb_o));
    
 endmodule // mips_system
