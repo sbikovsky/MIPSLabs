@@ -8,12 +8,12 @@ module mips_system (
                     
     output [7:0]  led
 );
-     localparam [31:0] instr_addr_high = 32'h00000fff,
+     localparam [31:0] instr_addr_high = 32'h000001ff,
                        instr_addr_low  = 32'h00000000,
-                       data_addr_high  = 32'h0000ffff,
-                       data_addr_low   = 32'h00001000,
+                       data_addr_high  = 32'h000003ff,
+                       data_addr_low   = 32'h00000200,
                        
-                       gpio_base_addr  = 32'h00010000;
+                       gpio_base_addr  = 32'h00000400;
 
      wire        i_read_en;   
      wire [31:0] i_addr;

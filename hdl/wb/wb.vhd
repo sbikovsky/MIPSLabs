@@ -163,8 +163,8 @@ architecture rtl of intercon is
                signal adr : std_logic_vector(31 downto 0);
                begin     
                     adr <= (mips_wbm_adr_o);
-                    ram_wbs_ss <= '1' when adr(31 downto 16)="0000000000000000" else '0';
-                    wbs_ss     <= '1' when adr(31 downto 16)="0000000000000001" else '0';
+                    ram_wbs_ss <= '1' when adr(31 downto 10)="0000000000000000000000" else '0';
+                    wbs_ss     <= '1' when adr(31 downto 10)="0000000000000000000001" else '0';
                     
                     ram_wbs_adr_i <= adr(31 downto 0);
                     wbs_adr_i <= adr(31 downto 0);
