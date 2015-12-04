@@ -44,7 +44,7 @@ module bus_control #(
           
      reg [31:0] memory[addr_low:addr_high];
      
-     initial begin
+     initial begin     
           $readmemh("text.rom", memory, addr_low, addr_high);      
      end
      

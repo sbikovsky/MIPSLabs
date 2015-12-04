@@ -8,18 +8,20 @@ module ram #(
      input             wren_i,
      output reg [31:0] data_o,
      input             clk_i);    
+     
+     wire [31:0] addr_real = addr_i - addr_low;
    
-     reg [31:0] memory [addr_low:addr_high] /* synthesis ram_style = no_rw_check */;
+     reg [31:0] memory [0:addr_high - addr_low] /* synthesis ram_style = no_rw_check */;
       
      initial begin
-          $readmemh("data.rom", memory, addr_low, addr_high);      
+          $readmemh("data.rom", memory, 0, addr_high - addr_low);      
      end
       
      always @ (posedge clk_i) begin 
-          data_o <= memory[addr_i];
+          data_o <= memory[addr_real];
           
           if (wren_i && !read_only)
-               memory[addr_i] <= data_i;
+               memory[addr_real] <= data_i;
      end 
 
 endmodule // ram

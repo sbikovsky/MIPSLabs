@@ -37,14 +37,15 @@ module hazard_unit( input       clk,       //     isn't needed for now
      
      assign pstop_o = mem_wait_r;
      
-     always@(posedge clk, posedge rst)
-        if(rst || wb_done_i) begin 
+     always@(posedge clk, posedge rst) begin
+        if(rst)  
             mem_wait_r = 0;
-        end else begin
-            if (id_opcode == LW || id_opcode == SW)
-                mem_wait_r = (id_opcode == LW || id_opcode == SW);
-        end
-
+        else if (wb_done_i)
+            mem_wait_r = 0;
+        else if (id_opcode == LW || id_opcode == SW)
+            mem_wait_r = (id_opcode == LW || id_opcode == SW);
+     end
+     
      reg [1:0] coincidence;
    
      always @* begin

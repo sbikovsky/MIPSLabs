@@ -8,11 +8,8 @@
 .ent entry
 entry:
 	    lw $t0, 0x200        /* t0 = 1*/
-	    sw $t0, 0x400
-        lw $t1, 0x201        /* t1 = 1*/
-	    lw $t1, 0x200        /* t0 = 1*/
-        add $t0, $t0, $t1     /* t0 = t0 + t1 = 2*/ 
-        sw $t0, 0x400
+	    lw $t1, 0x201        /* t1 = 1*/
+	    add $t0, $t0, $t1     /* t0 = t0 + t1 = 2*/ 
         add $t0, $t0, 0xB     /* t0 = t0 + 0xB  == 0xD*/
         sub $t0, $t0, $t1     /* t0 = t0 - $t1  == 0xC*/
         or $t0, $t0, 0x10     /* t0 = t0 | 0x10 == 0x1C*/
