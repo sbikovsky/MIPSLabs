@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 Created on Fri Dec 04 13:10:20 2015
 
@@ -36,7 +37,7 @@ def main(argv):
 def parse(file_name, rom_name, addr_last):
     hex_file = open(file_name, 'r')
     rom_file = open(rom_name, 'w')  
-    rom_file.truncate()
+#    rom_file.truncate()
     
     hex_parts = hex_file.readline()
     line = ""
@@ -52,9 +53,9 @@ def parse(file_name, rom_name, addr_last):
     rom_file.write("@00000000\n");
         
     while(1):        
-        hex_parts = hex_file.readline()    
-        hex_parts = hex_parts.translate(None, "\n\r")
-        hex_parts = hex_parts.split(" ");
+        hex_parts = hex_file.readline()  
+#        hex_parts = hex_parts.translate({None: "\n"})
+        hex_parts = hex_parts.split();
         
         if(len(hex_parts) < 4):
             break
@@ -63,7 +64,7 @@ def parse(file_name, rom_name, addr_last):
             
             if(len(part) == 0):
                 continue
-            
+                        
             line += part
             attached += 1
             
@@ -72,6 +73,7 @@ def parse(file_name, rom_name, addr_last):
                 words += 1
                 rom_file.write(line + "\n")
                 line = ""
+                
     
     for i in range(addr_last - words):
         rom_file.write("00000000\n")

@@ -5,15 +5,17 @@
 module mips_system ( 
     input wire    clk,
     input wire    rst,
-                    
-    output [7:0]  led
+             
+    input  [15:0] sw,         
+    output [15:0] led
 );
-     localparam [31:0] instr_addr_high = 32'h000001ff,
-                       instr_addr_low  = 32'h00000000,
-                       data_addr_high  = 32'h000003ff,
-                       data_addr_low   = 32'h00000200,
+     localparam [31:0] instr_addr_high  = 32'h000001ff,
+                       instr_addr_low   = 32'h00000000,
+                       data_addr_high   = 32'h000003ff,
+                       data_addr_low    = 32'h00000200,
                        
-                       gpio_base_addr  = 32'h00000400;
+                       gpio_base_addr   = 32'h00000400,
+                       ioctrl_base_addr = 32'h00000800;
 
      wire        i_read_en;   
      wire [31:0] i_addr;
@@ -33,6 +35,16 @@ module mips_system (
      wire gpio_cyc_i; 
      wire gpio_stb_i; 
      wire gpio_ack_o;
+     
+     // IOCTRL wb signals
+     wire [31:0] ioctrl_dat_i; 
+     wire [31:0] ioctrl_dat_o; 
+     wire [31:0] ioctrl_adr_i; 
+     wire ioctrl_we_i; 
+     wire [3:0] ioctrl_sel_i; 
+     wire ioctrl_cyc_i; 
+     wire ioctrl_stb_i; 
+     wire ioctrl_ack_o;
      
      // MIPS wb signals
      wire [31:0] mips_wbm_dat_i;
@@ -72,7 +84,26 @@ module mips_system (
         .ack_o(gpio_ack_o),
         
         // func signals
-        .gpio_o(led)
+        .sw_bi(sw),
+        .gpio_bo(led)
+     );
+     
+     
+     ioctrl_wb #(ioctrl_base_addr) ioctrl_inst(
+    
+        // system signals
+        .clk_i(clk), 
+        .rst_i(rst),
+        
+        // wb signals
+        .dat_i(ioctrl_dat_i), 
+        .dat_o(ioctrl_dat_o), 
+        .adr_i(ioctrl_adr_i), 
+        .we_i(ioctrl_we_i), 
+        .sel_i(ioctrl_sel_i), 
+        .cyc_i(ioctrl_cyc_i), 
+        .stb_i(ioctrl_stb_i), 
+        .ack_o(ioctrl_ack_o)
      );
      
      data_ram_wb #( 
@@ -111,15 +142,24 @@ module mips_system (
         .ram_wbs_adr_i(ram_addr_i),
         .ram_wbs_cyc_i(ram_cyc_i),
         .ram_wbs_stb_i(ram_stb_i),
-        // wbs
-        .wbs_dat_o(gpio_dat_o),
-        .wbs_ack_o(gpio_ack_o),
-        .wbs_dat_i(gpio_dat_i),
-        .wbs_we_i(gpio_we_i),
-        .wbs_sel_i(gpio_sel_i),
-        .wbs_adr_i(gpio_adr_i),
-        .wbs_cyc_i(gpio_cyc_i),
-        .wbs_stb_i(gpio_stb_i),
+        // wbs1
+        .wbs1_dat_o(gpio_dat_o),
+        .wbs1_ack_o(gpio_ack_o),
+        .wbs1_dat_i(gpio_dat_i),
+        .wbs1_we_i(gpio_we_i),
+        .wbs1_sel_i(gpio_sel_i),
+        .wbs1_adr_i(gpio_adr_i),
+        .wbs1_cyc_i(gpio_cyc_i),
+        .wbs1_stb_i(gpio_stb_i),
+        // wbs2
+        .wbs2_dat_o(ioctrl_dat_o),
+        .wbs2_ack_o(ioctrl_ack_o),
+        .wbs2_dat_i(ioctrl_dat_i),
+        .wbs2_we_i(ioctrl_we_i),
+        .wbs2_sel_i(ioctrl_sel_i),
+        .wbs2_adr_i(ioctrl_adr_i),
+        .wbs2_cyc_i(ioctrl_cyc_i),
+        .wbs2_stb_i(ioctrl_stb_i),
         // clock and reset
         .clk(clk),
         .reset(rst)
